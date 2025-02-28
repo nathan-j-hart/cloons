@@ -5,6 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Playoff Bracket</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bracket {
+      display: flex;
+      justify-content: space-between;
+    }
+    .round {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .matchup {
+      position: relative;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 200px;
+      text-align: center;
+    }
+    .matchup::before, .matchup::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 1px;
+      background: #ccc;
+      top: 50%;
+    }
+    .matchup::before {
+      left: -20px;
+    }
+    .matchup::after {
+      right: -20px;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
   <nav class="bg-blue-600 text-white p-4">
@@ -22,7 +57,7 @@
   
   <main class="max-w-4xl mx-auto p-4">
     <h2 class="text-2xl font-semibold mb-4">Playoff Bracket</h2>
-    <div id="playoff-bracket-container"></div>
+    <div id="playoff-bracket-container" class="bracket"></div>
     <div id="error-message" class="text-red-500 mt-4"></div>
     <script src="fetch_playoff_bracket.js"></script>
     <script src="fetch_user_info.js"></script>
@@ -45,27 +80,41 @@
             return acc;
           }, {});
           const container = document.getElementById('playoff-bracket-container');
+          const rounds = {};
+
           bracket.forEach(matchup => {
-            const team1 = rosterMap[matchup.team_1];
-            const team2 = rosterMap[matchup.team_2];
-            const winner = rosterMap[matchup.winner];
-            const loser = rosterMap[matchup.loser];
-            const matchupElement = document.createElement('div');
-            matchupElement.classList.add('mb-4', 'p-4', 'bg-white', 'shadow', 'rounded');
-            matchupElement.innerHTML = `
-              <div class="font-bold">Round ${matchup.round}, Match ${matchup.matchup_id}</div>
-              <div>
-                <img src="${team1 ? team1.avatar : 'https://play-lh.googleusercontent.com/o1GxLz2vjSSwEMEaqWcqBESsJm2cfgSywh_f0zrXwq5v--n9zm95TzUebjv-j3WZQ2A'}" alt="${team1 ? team1.display_name : 'Unknown'}" class="inline-block w-8 h-8 rounded-full">
-                ${team1 ? team1.display_name : 'Unknown'}
-              </div>
-              <div>
-                <img src="${team2 ? team2.avatar : 'https://play-lh.googleusercontent.com/o1GxLz2vjSSwEMEaqWcqBESsJm2cfgSywh_f0zrXwq5v--n9zm95TzUebjv-j3WZQ2A'}" alt="${team2 ? team2.display_name : 'Unknown'}" class="inline-block w-8 h-8 rounded-full">
-                ${team2 ? team2.display_name : 'Unknown'}
-              </div>
-              <div>Winner: ${winner ? winner.display_name : 'Unknown'}</div>
-              <div>Loser: ${loser ? loser.display_name : 'Unknown'}</div>
-            `;
-            container.appendChild(matchupElement);
+            if (!rounds[matchup.round]) {
+              rounds[matchup.round] = [];
+            }
+            rounds[matchup.round].push(matchup);
+          });
+
+          Object.keys(rounds).forEach(round => {
+            const roundElement = document.createElement('div');
+            roundElement.classList.add('round');
+            rounds[round].forEach(matchup => {
+              const team1 = rosterMap[matchup.team_1];
+              const team2 = rosterMap[matchup.team_2];
+              const winner = rosterMap[matchup.winner];
+              const loser = rosterMap[matchup.loser];
+              const matchupElement = document.createElement('div');
+              matchupElement.classList.add('matchup');
+              matchupElement.innerHTML = `
+                <div class="font-bold">Match ${matchup.matchup_id}</div>
+                <div>
+                  <img src="${team1 ? team1.avatar : 'https://play-lh.googleusercontent.com/o1GxLz2vjSSwEMEaqWcqBESsJm2cfgSywh_f0zrXwq5v--n9zm95TzUebjv-j3WZQ2A'}" alt="${team1 ? team1.display_name : 'Unknown'}" class="inline-block w-8 h-8 rounded-full">
+                  ${team1 ? team1.display_name : 'Unknown'}
+                </div>
+                <div>
+                  <img src="${team2 ? team2.avatar : 'https://play-lh.googleusercontent.com/o1GxLz2vjSSwEMEaqWcqBESsJm2cfgSywh_f0zrXwq5v--n9zm95TzUebjv-j3WZQ2A'}" alt="${team2 ? team2.display_name : 'Unknown'}" class="inline-block w-8 h-8 rounded-full">
+                  ${team2 ? team2.display_name : 'Unknown'}
+                </div>
+                <div>Winner: ${winner ? winner.display_name : 'Unknown'}</div>
+                <div>Loser: ${loser ? loser.display_name : 'Unknown'}</div>
+              `;
+              roundElement.appendChild(matchupElement);
+            });
+            container.appendChild(roundElement);
           });
         } catch (error) {
           const errorMessage = document.getElementById('error-message');
