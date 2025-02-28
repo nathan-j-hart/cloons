@@ -23,22 +23,34 @@
     <h2 class="text-2xl font-semibold mb-4">Welcome to the Fantasy League</h2>
     <p>Check out league history, team stats, and analytics.</p>
     <canvas id="winChart"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById('winChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Team A', 'Team B', 'Team C'],
-      datasets: [{
-        label: 'Wins',
-        data: [10, 15, 7],
-        backgroundColor: 'blue'
-      }]
-    }
-  });
-</script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById('winChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Team A', 'Team B', 'Team C'],
+          datasets: [{
+            label: 'Wins',
+            data: [10, 15, 7],
+            backgroundColor: 'blue'
+          }]
+        }
+      });
+    </script>
+    <div id="victory-points-container"></div>
+    <script src="fetch_victory_points.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const victoryPoints = await fetchVictoryPoints('1132459175851864064', 1);
+        const container = document.getElementById('victory-points-container');
+        victoryPoints.forEach(team => {
+          const teamElement = document.createElement('div');
+          teamElement.textContent = `Team ${team.rosterId}: ${team.points} points`;
+          container.appendChild(teamElement);
+        });
+      });
+    </script>
   </main>
 </body>
 </html>
