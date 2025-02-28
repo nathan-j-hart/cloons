@@ -23,21 +23,29 @@
   <main class="max-w-4xl mx-auto p-4">
     <h2 class="text-2xl font-semibold mb-4">Playoff Bracket</h2>
     <div id="playoff-bracket-container"></div>
+    <div id="error-message" class="text-red-500 mt-4"></div>
     <script src="fetch_playoff_bracket.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
-        const bracket = await fetchPlayoffBracket('1132459175851864064');
-        const container = document.getElementById('playoff-bracket-container');
-        bracket.forEach(matchup => {
-          const matchupElement = document.createElement('div');
-          matchupElement.classList.add('mb-4', 'p-4', 'bg-white', 'shadow', 'rounded');
-          matchupElement.innerHTML = `
-            <div class="font-bold">Matchup ${matchup.matchup_id}</div>
-            <div>Team ${matchup.team_1.roster_id}: ${matchup.team_1.points} points</div>
-            <div>Team ${matchup.team_2.roster_id}: ${matchup.team_2.points} points</div>
-          `;
-          container.appendChild(matchupElement);
-        });
+        try {
+          const bracket = await fetchPlayoffBracket('1132459175851864064');
+          const container = document.getElementById('playoff-bracket-container');
+          bracket.forEach(matchup => {
+            const matchupElement = document.createElement('div');
+            matchupElement.classList.add('mb-4', 'p-4', 'bg-white', 'shadow', 'rounded');
+            matchupElement.innerHTML = `
+              <div class="font-bold">Round ${matchup.round}, Match ${matchup.matchup_id}</div>
+              <div>Team 1: ${matchup.team_1}</div>
+              <div>Team 2: ${matchup.team_2}</div>
+              <div>Winner: ${matchup.winner}</div>
+              <div>Loser: ${matchup.loser}</div>
+            `;
+            container.appendChild(matchupElement);
+          });
+        } catch (error) {
+          const errorMessage = document.getElementById('error-message');
+          errorMessage.textContent = `Error fetching playoff bracket: ${error.message}`;
+        }
       });
     </script>
   </main>
