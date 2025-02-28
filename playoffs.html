@@ -25,20 +25,45 @@
     <div id="playoff-bracket-container"></div>
     <div id="error-message" class="text-red-500 mt-4"></div>
     <script src="fetch_playoff_bracket.js"></script>
+    <script src="fetch_user_info.js"></script>
+    <script src="fetch_rosters.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         try {
-          const bracket = await fetchPlayoffBracket('1132459175851864064');
+          const leagueId = '1132459175851864064';
+          const [bracket, users, rosters] = await Promise.all([
+            fetchPlayoffBracket(leagueId),
+            fetchUserInfo(leagueId),
+            fetchRosters(leagueId)
+          ]);
+          const userMap = users.reduce((acc, user) => {
+            acc[user.user_id] = user;
+            return acc;
+          }, {});
+          const rosterMap = rosters.reduce((acc, roster) => {
+            acc[roster.roster_id] = userMap[roster.owner_id];
+            return acc;
+          }, {});
           const container = document.getElementById('playoff-bracket-container');
           bracket.forEach(matchup => {
+            const team1 = rosterMap[matchup.team_1];
+            const team2 = rosterMap[matchup.team_2];
+            const winner = rosterMap[matchup.winner];
+            const loser = rosterMap[matchup.loser];
             const matchupElement = document.createElement('div');
             matchupElement.classList.add('mb-4', 'p-4', 'bg-white', 'shadow', 'rounded');
             matchupElement.innerHTML = `
               <div class="font-bold">Round ${matchup.round}, Match ${matchup.matchup_id}</div>
-              <div>Team 1: ${matchup.team_1}</div>
-              <div>Team 2: ${matchup.team_2}</div>
-              <div>Winner: ${matchup.winner}</div>
-              <div>Loser: ${matchup.loser}</div>
+              <div>
+                <img src="${team1 ? team1.avatar : 'https://play-lh.googleusercontent.com/o1GxLz2vjSSwEMEaqWcqBESsJm2cfgSywh_f0zrXwq5v--n9zm95TzUebjv-j3WZQ2A'}" alt="${team1 ? team1.display_name : 'Unknown'}" class="inline-block w-8 h-8 rounded-full">
+                ${team1 ? team1.display_name : 'Unknown'}
+              </div>
+              <div>
+                <img src="${team2 ? team2.avatar : 'https://play-lh.googleusercontent.com/o1GxLz2vjSSwEMEaqWcqBESsJm2cfgSywh_f0zrXwq5v--n9zm95TzUebjv-j3WZQ2A'}" alt="${team2 ? team2.display_name : 'Unknown'}" class="inline-block w-8 h-8 rounded-full">
+                ${team2 ? team2.display_name : 'Unknown'}
+              </div>
+              <div>Winner: ${winner ? winner.display_name : 'Unknown'}</div>
+              <div>Loser: ${loser ? loser.display_name : 'Unknown'}</div>
             `;
             container.appendChild(matchupElement);
           });
