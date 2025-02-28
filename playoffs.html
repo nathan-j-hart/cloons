@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fantasy Football League</title>
+  <title>Playoff Bracket</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -21,19 +21,22 @@
   </nav>
   
   <main class="max-w-4xl mx-auto p-4">
-    <h2 class="text-2xl font-semibold mb-4">The Clown Car</h2>
-    <p>Check out league history, team stats, and analytics.</p>
-    
-    <div id="victory-points-container"></div>
-    <script src="fetch_victory_points.js"></script>
+    <h2 class="text-2xl font-semibold mb-4">Playoff Bracket</h2>
+    <div id="playoff-bracket-container"></div>
+    <script src="fetch_playoff_bracket.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
-        const victoryPoints = await fetchVictoryPoints('1132459175851864064', 1);
-        const container = document.getElementById('victory-points-container');
-        victoryPoints.forEach(team => {
-          const teamElement = document.createElement('div');
-          teamElement.textContent = `Team ${team.rosterId}: ${team.points} points`;
-          container.appendChild(teamElement);
+        const bracket = await fetchPlayoffBracket('1132459175851864064');
+        const container = document.getElementById('playoff-bracket-container');
+        bracket.forEach(matchup => {
+          const matchupElement = document.createElement('div');
+          matchupElement.classList.add('mb-4', 'p-4', 'bg-white', 'shadow', 'rounded');
+          matchupElement.innerHTML = `
+            <div class="font-bold">Matchup ${matchup.matchup_id}</div>
+            <div>Team ${matchup.team_1.roster_id}: ${matchup.team_1.points} points</div>
+            <div>Team ${matchup.team_2.roster_id}: ${matchup.team_2.points} points</div>
+          `;
+          container.appendChild(matchupElement);
         });
       });
     </script>
