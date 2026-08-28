@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy this to config.json and fill in what you need. Every key is optional.",
+
+  "tradeDeadlineWeek": 11,
+
+  "_candidates_comment": "Force which players to evaluate per roster_id, instead of reading Sleeper's roster.keepers designation. Keys are roster_id (number), values are arrays of Sleeper player_id (string).",
+  "candidates": {
+    "1": ["4046", "6794"]
+  },
+
+  "_adpOverrides_comment": "Required for any player who was never drafted in this league (4.7.3's 'player was undrafted' case). Sleeper does not expose a historical ADP-as-of-a-past-date via its public API, so snapshot it yourself (e.g. from Sleeper's mock draft ADP view, or another source your league agrees on) one week before the draft and enter it here. Provide EITHER 'round' directly, OR 'overallPick' + 'teamCount' and the tool will convert (round = ceil(overallPick / teamCount)).",
+  "adpOverrides": {
+    "4046": { "round": 9 },
+    "6794": { "overallPick": 34, "teamCount": 12 }
+  }
+}
